@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+    <meta charset="utf-8">
+    <title>Remove an overlay</title>
+    <style>
+      html, body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+      #map {
+        height: 100%;
+      }
+#floating-panel {
+  position: absolute;
+  top: 10px;
+  left: 25%;
+  z-index: 5;
+  background-color: #fff;
+  text-align: center;
+}
+
+    </style>
+  </head>
+  <body>
+	<div id="floating-panel" class="panel panel-primary">
+		<div class="panel-heading">Map Controls</div>
+		<div class="panel-body">
+			<input onclick="removeOverlay();" type=button class="btn btn-primary" value="Remove overlay">
+			<input onclick="addOverlay();" type=button class="btn btn-primary" value="Restore overlay">
+			<input onclick="clearMarkers();" type=button class="btn btn-primary" value="Hide Markers">
+			<input onclick="showMarkers();" type=button class="btn btn-primary" value="Show All Markers">
+			<input onclick="deleteMarkers();" type=button class="btn btn-primary" value="Delete Markers">
+		</div>
+	</div>
+	<div id="map"></div>
+    <script>
+// This example adds a UI control allowing users to remove the
+// ground overlay from the map.
+
+var historicalOverlay;
+var map;
+var markers = [];
+
+var infoString = '<div id="content" class="panel panel-primary">'+
+'<div id="firstHeading" class="panel-heading">Info Content</div>'+
+'<div id="bodyContent" class="panel-body">'+
+'<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, '+
+'sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. '+
+'Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris '+
+'nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in '+
+'reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla '+
+'pariatur. Excepteur sint occaecat cupidatat non proident, sunt in '+
+'culpa qui officia deserunt mollit anim id est laborum.</p>'+
+'</div>'+
+'</div>';
+var infowindow;
+
+function initMap() {
+  map = new google.maps.Map(document.getElementById('map'), {
+    zoom: 13,
+    center: {lat: 40.740, lng: -74.18}
+  });
+
+  var imageBounds = {
+    north: 40.773941,
+    south: 40.712216,
+    east: -74.12544,
+    west: -74.22655
+  };
+
+  historicalOverlay = new google.maps.GroundOverlay(
+      'https://www.lib.utexas.edu/maps/historical/newark_nj_1922.jpg',
+      imageBounds);
+  addOverlay();
+  infowindow = new google.maps.InfoWindow({
+	    content: infoString
+	  });
+  //This event listener will call addMarker() when the map is clicked.
+  map.addListener('click', function(event) {
+    addMarker(event.latLng);
+  });
+}
+function addOverlay() {
+  historicalOverlay.setMap(map);
+}
+function removeOverlay() {
+  historicalOverlay.setMap(null);
+}
+//Adds a marker to the map and push to the array.
+function addMarker(location) {
+  var marker = new google.maps.Marker({
+    position: location,
+    map: map
+  });
+  marker.addListener('click', function() {
+	infowindow.open(map, marker);
+  });
+  markers.push(marker);
+}
+// Sets the map on all markers in the array.
+function setMapOnAll(map) {
+  for (var i = 0; i < markers.length; i++) {
+    markers[i].setMap(map);
+  }
+}
+// Removes the markers from the map, but keeps them in the array.
+function clearMarkers() {
+  setMapOnAll(null);
+}
+// Shows any markers currently in the array.
+function showMarkers() {
+  setMapOnAll(map);
+}
+//Deletes all markers in the array by removing references to them.
+function deleteMarkers() {
+  clearMarkers();
+  markers = [];
+}
+
+
+    </script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC7XGvwbXstMgEB64tlUzv9Ac4nAPUaQhs&callback=initMap&signed_in=true" async defer>
+    </script>
+  </body>
+</html>
